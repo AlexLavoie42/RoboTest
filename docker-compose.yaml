@@ -1,19 +1,37 @@
-
 version: "3.9"
 services:
+  # ------------------------------------------------------------
   isaac-sim:
     image: nvcr.io/nvidia/isaac-sim:2024.1.0
     container_name: isaac-sim
+    runtime: nvidia
     environment:
       - ACCEPT_EULA=Y
-    runtime: nvidia
-    networks: [rosnet]
     volumes:
       - ./workspace:/workspace/robo
-    command: ["bash", "-c", "echo 'Launch Isaac Sim headless here'"]
+    networks: [rosnet]
+
+  # Object‑detection node (runs outside Isaac Sim for speed)
+  perception:
+    build:
+      context: .
+      dockerfile: Dockerfile.perception  # lightweight Python base
+    container_name: perception
+    depends_on: [redis]
+    runtime: nvidia
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - ./perception:/app/perception
+    command: >-
+      ros2 run perception yolo_node
+        --ros-args -p model_path:=/app/perception/yolov8n.pt
+        -p redis_host:=redis
+    networks: [rosnet]
 
   redis:
-    image: redis:7
+    image: redis:7-alpine
+    container_name: redis
     ports: ["6379:6379"]
     networks: [rosnet]
 
