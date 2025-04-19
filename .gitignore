@@ -1,0 +1,20 @@
+# Python & VS Code
+__pycache__/
+*.py[cod]
+.env
+venv/
+.idea/
+.vscode/
+
+# Ros/Isaac build outputs
+log/
+install/
+build/
+
+# Jupyter & temp
+.ipynb_checkpoints/
+*.egg-info/
+
+# OS generated
+.DS_Store
+Thumbs.db
